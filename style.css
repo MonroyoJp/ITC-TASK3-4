@@ -1,1 +1,213 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Acme&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Shadows+Into+Light&display=swap');
+:root{
+    /* ================================================ Color ==================================================  */
+    --main-color-black-first-pattern: #232323;
+    --main-color-black-second-pattern: #181818;
+    --main-red: linear-gradient(to left,  rgb(251, 1, 1, 1), rgb(165, 0, 0, 1));
+    --main-white: #f3f3f3;
+    --text-red: #C71111;
+    --text-white: #F3F3F3;
+    --text-inactive-grey: #4D4D4D;
+    --text-description-grey: #5E5E5E;
+    --text-logo-title-grey: #1E1E1E;
+    --diagram-bg-grey: #181818;
+    --diagram-bg-grey2: #383838;
+    --diagram-arrow-grey: #3E3E3E;
+    --circle-diagram-grey: #212121;
+    --circle-diagram-grey2: #1F1F1F;
+    --content-bg-grey: #2C2C2C;
+    --content-bg-grey2: #333333;
+    --carousel-bullets: #2C2C2C;
+    --footer-border-light: #272727;
+    --nav-active-border-red: #FE0102;
+    --nav-fixed-bg: rgba(51, 51, 51, 0.5);
+    --bg-red: #FE0102;
+
+     /* ========== Font Sizes ========== */
+    --font-size-xs: 0.75rem;   /* small notes, labels */
+    --font-size-sm: 0.875rem;  /* secondary text */
+    --font-size-base: 1rem;    /* body text */
+    --font-size-md: 1.125rem;  /* slightly larger body */
+    --font-size-lg: 1.5rem;    /* section titles */
+    --font-size-xl: 2rem;      /* main titles */
+    --font-size-xxl: 3rem;     /* hero headings */
+
+    /* ========== pixels and border Sizes ========== */
+    --OnePx-: 1px;
+    --TwoPx-: 2px;
+    --ThreePx-: 3px;
+    --FourPx-: 4px;
+
+    --OnePx-solid-border: 1px solid;
+    --TwoPx-solid-border: 2px solid;
+    --ThreePx-solid-border: 3px solid;
+    --FourPx-solid-border: 4px solid;
+
+    /* ========== Line Heights ========== */
+    --line-height-tight: 1.1;
+    --line-height-normal: 1.5;
+    --line-height-loose: 1.8;
+
+    /* ========== Letter Spacing ========== */
+    --letter-spacing-tight: -0.5px;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide: 0.5px;
+
+    /* ========== Spacing System (margin, padding, gaps) ========== */
+    --space-xxs: 0.25rem;  /* 4px */
+    --space-xs: 0.5rem;    /* 8px */
+    --space-sm: 0.75rem;   /* 12px */
+    --space-md: 1rem;      /* 16px */
+    --space-lg: 1.5rem;    /* 24px */
+    --space-xl: 2rem;      /* 32px */
+    --space-xxl: 3rem;     /* 48px */
+    --space-xxxl: 5rem;     /* 48px */
+    --space-xxxxl: 8rem;     /* 48px */
+    --space-xxxxl: 10rem;     /* 48px */
+
+    /* ========== Container Widths ========== */
+    --container-narrow: 640px;
+    --container-medium: 960px;
+    --container-wide: 1200px;
+
+    /* ========== Gaps ========== */
+    --gap-sm: var(--space-sm);
+    --gap-md: var(--space-md);
+    --gap-lg: var(--space-lg);
+
+    /* ========== Font Family ========== */
+    --font-main: 'Poppins', 'Segoe UI', sans-serif;
+    --font-accent: 'Orbitron', 'Montserrat', sans-serif;
+    --font-cursive: 'Great Vibes', 'Brush Script MT', 'Lucida Handwriting', cursive;
+
+    /* ========== Font Weight ========== */
+    --fw-light: 300;
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-bold: 700;
+    --fw-black: 900;
+    
+}
+
+
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-main);
+    scroll-behavior: smooth;
+}
+
+
+/* =============================== Main Wrapper Style ===============================*/
+.main-flex-col{
+  margin: 0;
+  min-height: 700vh;
+
+  /* repeating wide diagonal panels */
+  background: repeating-linear-gradient(
+    135deg,
+    var(--main-color-black-first-pattern) 0,
+    var(--main-color-black-first-pattern) 140vh,   
+    var(--main-color-black-second-pattern) 140vh,
+    var(--main-color-black-second-pattern) 280vh  
+  );
+
+}
+
+.carousel-content-wrapper-flex{
+    padding-top: var(--space-xxxl);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+/* =============================== ul,li,a Style ===============================*/
+
+.topNav-flex{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+}
+
+.nav-fixed-bg{
+    transition: 0.5s ease-in-out;
+    background-color: var(--nav-fixed-bg) !important;
+}
+
+.content-nav{
+    display: flex;
+}
+
+.content-nav li {
+    list-style: none;
+    padding: 5px 20px;
+}
+
+.content-nav li a{
+    text-decoration: none;
+    color: var(--text-inactive-grey);
+    position: relative;
+
+}
+
+.nav-active {
+    color: var(--text-red) !important;
+}
+
+.content-nav li a::after,
+.nav-active::after{
+    content: "";
+    position: absolute;
+    height: 8%;
+    width: 100%;
+    background-color: var(--bg-red);
+    left: 0;
+    bottom: -10%;
+    transition: ease-in-out 0.4s;
+    transform: translateY(145%);
+    opacity: 0;
+}
+
+.nav-active::after{
+    opacity: 1 !important;
+}
+
+.content-nav li:hover > a{
+    color: var(--text-red);
+}
+.content-nav li:hover > a::after{
+    transform: translateY(0);
+    opacity: 1;
+}
+
+
+.carousel{
+    display: flex;
+    align-content: center;
+    justify-content: space-evenly;
+    flex-direction: column;
+    height: 100%;
+}
+
+.bullet{
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    background-color: var(--carousel-bullets);
+}
+
+
+
+
+
+/* =============================== icons =============================== */
+
+.mxg-icon{
+    width: 10%;
+}
