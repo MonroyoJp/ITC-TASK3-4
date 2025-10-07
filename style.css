@@ -283,6 +283,7 @@
   flex-wrap: wrap;
 }
 
+
 .essay-box {
   flex: 1 1 45%;
   padding: 45px;
@@ -635,9 +636,9 @@
 .img-first-col-1::after{content: "keyboard | Input";}
 .img-first-col-2::after{content: "mouse | Input";}
 .img-first-col-3::after{content: "monitor | Output";}
-.img-first-col-4::after{content: "printer | output";}
+.img-first-col-4::after{content: "Mouse | input";}
 .img-first-col-5::after{content: "earphone | both";}
-.img-first-col-6::after{content: "flashdrive | both";}
+.img-first-col-6::after{content: "monitor | output";}
 .img-first-col-7::after{content: "drawing tablet | input"; font-size: var(--font-size-xs);}
 .img-first-col-8::after{content: "Router | both";}
 
