@@ -48,29 +48,25 @@ function getTaskOffsets(){
 
 let taskOffsets = getTaskOffsets();
 
-// update offsets when window resizes or content changes
 function refreshOffsets() {
     taskOffsets = getTaskOffsets();
 }
 
-// recalc on load, resize, and after a short delay when accordions toggle
 window.addEventListener("load", refreshOffsets);
 let resizeTimer;
 
 window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    // wait until the layout fully settles after resizing
     resizeTimer = setTimeout(() => {
         refreshOffsets();
         console.log("Offsets updated after resize");
-    }, 400); // 400ms gives time for layout to restabilize
+    }, 400); 
 });
 
 
-// whenever an accordion opens or closes, recalc offsets
 document.querySelectorAll(".accordion-header").forEach(button => {
     button.addEventListener("click", () => {
-        setTimeout(refreshOffsets, 600); // wait for animation to finish
+        setTimeout(refreshOffsets, 600);
     });
 });
 
@@ -134,27 +130,24 @@ document.querySelectorAll(".accordion-header").forEach(button => {
 const wasdKeys = document.querySelectorAll("#wasdLayout .key");
 const processText = document.getElementById("processText");
 
-let isProcessing = false; // prevent multiple runs
+let isProcessing = false; 
 
 if (wasdKeys.length) {
   window.addEventListener("keydown", (e) => {
-    if (isProcessing) return; // block new presses if running
+    if (isProcessing) return; 
     const key = e.key.toLowerCase();
     const match = [...wasdKeys].find((k) => k.dataset.key === key);
     if (!match) return;
 
-    // highlight key briefly
     match.classList.add("active");
 
-    // prevent new presses
     isProcessing = true;
 
-    // color-coded process stages
     const stages = [
-      { name: "Intake", color: "#00FF7F" },      // green
-      { name: "Processing", color: "#FFD700" },  // yellow
-      { name: "Output", color: "#1E90FF" },      // blue
-      { name: "Display", color: "#FF4040" }      // red
+      { name: "Intake", color: "#00FF7F" },      
+      { name: "Processing", color: "#FFD700" },  
+      { name: "Output", color: "#1E90FF" },      
+      { name: "Display", color: "#FF4040" }     
     ];
 
     let index = 0;
@@ -166,7 +159,6 @@ if (wasdKeys.length) {
         processText.style.color = color;
         processText.classList.add("active");
 
-        // proceed to next stage after short delay
         setTimeout(() => {
           processText.classList.remove("active");
           index++;
@@ -174,7 +166,6 @@ if (wasdKeys.length) {
           
         }, 700);
       } else {
-        // reset at the end
         setTimeout(() => match.classList.remove("active"), 100);
 
         isProcessing = false;
@@ -200,98 +191,105 @@ document.querySelectorAll(".color-toggle-global .dot").forEach((btn) => {
   });
 });
 
-// ======= Auto-Length Screenshot -> PDF (safe finite loop) =======
 document.getElementById("downloadPDF").addEventListener("click", async () => {
-  // ===== Create overlay =====
   const overlay = document.createElement("div");
+  Object.assign(overlay.style, {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.8)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#fff",
+    fontSize: "1.5rem",
+    zIndex: 99999,
+    backdropFilter: "blur(3px)",
+    transition: "opacity 0.3s ease"
+  });
   overlay.id = "pdfOverlay";
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100%";
-  overlay.style.height = "100%";
-  overlay.style.background = "rgba(0,0,0,0.8)";
-  overlay.style.display = "flex";
-  overlay.style.alignItems = "center";
-  overlay.style.justifyContent = "center";
-  overlay.style.color = "#fff";
-  overlay.style.fontSize = "1.5rem";
-  overlay.style.zIndex = "99999";
-  overlay.style.backdropFilter = "blur(3px)";
   overlay.textContent = "📸 Generating PDF… Please wait";
   document.body.appendChild(overlay);
   document.body.style.overflow = "hidden";
 
-  // ===== Expand accordions =====
-  document.querySelectorAll(".accordion-content").forEach(c => {
-    c.classList.add("show");
-    c.style.maxHeight = "none";
-    c.style.opacity = "1";
-  });
-  document.querySelectorAll(".caret").forEach(c => {
-    c.style.transform = "rotate(180deg)";
-    c.style.color = "#C71111";
+  const accordions = document.querySelectorAll(".accordion-content");
+  const accordionStates = new Map();
+  accordions.forEach(acc => {
+    accordionStates.set(acc, {
+      wasShown: acc.classList.contains("show"),
+      maxHeight: acc.style.maxHeight,
+      opacity: acc.style.opacity
+    });
+    acc.classList.add("show");
+    acc.style.maxHeight = "none";
+    acc.style.opacity = "1";
   });
 
-  // ===== Hide fixed elements =====
   const fixedEls = document.querySelectorAll(".topNav-flex, .carousel, #downloadPDF");
-  fixedEls.forEach(el => (el.style.display = "none"));
+  const originalDisplays = new Map();
+  fixedEls.forEach(el => {
+    originalDisplays.set(el, el.style.display);
+    el.style.display = "none";
+  });
 
-  const images = [];
-
-  // Lock total height at the start (so it doesn't keep growing)
-  const totalHeight = document.body.scrollHeight;
-  const viewportHeight = window.innerHeight;
-
-  // Determine exactly how many full screens are needed
-  const totalParts = Math.ceil(totalHeight / viewportHeight);
+  const wrapper = document.querySelector(".mainWrapper") || document.getElementById("mainWrapper");
+  if (!wrapper) {
+    alert("Main wrapper not found! Please check selector in main.js.");
+    overlay.remove();
+    document.body.style.overflow = "";
+    return;
+  }
 
   try {
-    for (let i = 0; i < totalParts; i++) {
-      overlay.textContent = `Capturing part ${i + 1} of ${totalParts}...`;
+    overlay.textContent = "Capturing content…";
 
-      window.scrollTo(0, i * viewportHeight);
-      await new Promise(r => setTimeout(r, 800)); // wait for render
-
-      const canvas = await html2canvas(document.body, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        windowWidth: document.documentElement.scrollWidth,
-        windowHeight: viewportHeight,
-        ignoreElements: element => element.id === "pdfOverlay"
-      });
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
-      images.push(imgData);
-    }
-
-    // restore scroll & fixed elements
-    window.scrollTo(0, 0);
-    fixedEls.forEach(el => (el.style.display = ""));
+    const canvas = await html2canvas(wrapper, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      ignoreElements: el => el.id === "pdfOverlay"
+    });
 
     overlay.textContent = "Compiling PDF…";
 
-    // ===== Build PDF =====
     const pdf = new jspdf.jsPDF("p", "px", "a4");
-    const pageW = pdf.internal.pageSize.getWidth();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-    for (let i = 0; i < images.length; i++) {
-      const img = new Image();
-      img.src = images[i];
-      await new Promise(r => (img.onload = r));
+    const imgData = canvas.toDataURL("image/jpeg", 0.98);
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      const aspect = img.width / img.height;
-      const pdfH = pageW / aspect;
-      pdf.addImage(img, "JPEG", 0, 0, pageW, pdfH);
-      if (i < images.length - 1) pdf.addPage();
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
     }
 
-    pdf.save("FullPage_Screenshot.pdf");
+    pdf.save("ITC_TASK_3_TASK_4_ANSWERS.pdf");
   } catch (err) {
     console.error("PDF generation error:", err);
     alert("Something went wrong while generating the PDF.");
   } finally {
+    accordions.forEach(acc => {
+      const state = accordionStates.get(acc);
+      if (state) {
+        if (!state.wasShown) acc.classList.remove("show");
+        acc.style.maxHeight = state.maxHeight;
+        acc.style.opacity = state.opacity;
+      }
+    });
+
+    fixedEls.forEach(el => {
+      el.style.display = originalDisplays.get(el) || "";
+    });
+
     overlay.remove();
     document.body.style.overflow = "";
   }
