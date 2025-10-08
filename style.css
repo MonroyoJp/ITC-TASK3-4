@@ -923,3 +923,30 @@
   line-height: 1.6;
   text-align: justify;
 }
+
+#downloadPDF {
+  position: fixed;
+  bottom: 2%;
+  left: 1%;
+  background-color: var(--bg-red);
+  color: white;
+  border: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  transition: transform all 0.1s ease;
+}
+
+#downloadPDF:hover {
+  transform: translateX(10%);
+}
+
+#downloadPDF:active{
+  background-color: #fe010110;
+}
+
