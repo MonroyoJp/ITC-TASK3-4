@@ -199,3 +199,101 @@ document.querySelectorAll(".color-toggle-global .dot").forEach((btn) => {
     });
   });
 });
+
+// ======= Auto-Length Screenshot -> PDF (safe finite loop) =======
+document.getElementById("downloadPDF").addEventListener("click", async () => {
+  // ===== Create overlay =====
+  const overlay = document.createElement("div");
+  overlay.id = "pdfOverlay";
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.background = "rgba(0,0,0,0.8)";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.color = "#fff";
+  overlay.style.fontSize = "1.5rem";
+  overlay.style.zIndex = "99999";
+  overlay.style.backdropFilter = "blur(3px)";
+  overlay.textContent = "📸 Generating PDF… Please wait";
+  document.body.appendChild(overlay);
+  document.body.style.overflow = "hidden";
+
+  // ===== Expand accordions =====
+  document.querySelectorAll(".accordion-content").forEach(c => {
+    c.classList.add("show");
+    c.style.maxHeight = "none";
+    c.style.opacity = "1";
+  });
+  document.querySelectorAll(".caret").forEach(c => {
+    c.style.transform = "rotate(180deg)";
+    c.style.color = "#C71111";
+  });
+
+  // ===== Hide fixed elements =====
+  const fixedEls = document.querySelectorAll(".topNav-flex, .carousel, #downloadPDF");
+  fixedEls.forEach(el => (el.style.display = "none"));
+
+  const images = [];
+
+  // Lock total height at the start (so it doesn't keep growing)
+  const totalHeight = document.body.scrollHeight;
+  const viewportHeight = window.innerHeight;
+
+  // Determine exactly how many full screens are needed
+  const totalParts = Math.ceil(totalHeight / viewportHeight);
+
+  try {
+    for (let i = 0; i < totalParts; i++) {
+      overlay.textContent = `Capturing part ${i + 1} of ${totalParts}...`;
+
+      window.scrollTo(0, i * viewportHeight);
+      await new Promise(r => setTimeout(r, 800)); // wait for render
+
+      const canvas = await html2canvas(document.body, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        windowWidth: document.documentElement.scrollWidth,
+        windowHeight: viewportHeight,
+        ignoreElements: element => element.id === "pdfOverlay"
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
+      images.push(imgData);
+    }
+
+    // restore scroll & fixed elements
+    window.scrollTo(0, 0);
+    fixedEls.forEach(el => (el.style.display = ""));
+
+    overlay.textContent = "Compiling PDF…";
+
+    // ===== Build PDF =====
+    const pdf = new jspdf.jsPDF("p", "px", "a4");
+    const pageW = pdf.internal.pageSize.getWidth();
+
+    for (let i = 0; i < images.length; i++) {
+      const img = new Image();
+      img.src = images[i];
+      await new Promise(r => (img.onload = r));
+
+      const aspect = img.width / img.height;
+      const pdfH = pageW / aspect;
+      pdf.addImage(img, "JPEG", 0, 0, pageW, pdfH);
+      if (i < images.length - 1) pdf.addPage();
+    }
+
+    pdf.save("FullPage_Screenshot.pdf");
+  } catch (err) {
+    console.error("PDF generation error:", err);
+    alert("Something went wrong while generating the PDF.");
+  } finally {
+    overlay.remove();
+    document.body.style.overflow = "";
+  }
+});
+
